@@ -32,7 +32,8 @@ where
 			Err(e) => return LoadResult::Invalid(e),
 		};
 
-		        match self.format.parse::<T>(&bytes) {			Ok(mut obj) => {
+		match self.format.parse::<T>(&bytes) {
+			Ok(mut obj) => {
 				obj.pre_process();
 				LoadResult::Ok(obj)
 			}
