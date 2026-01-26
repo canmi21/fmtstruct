@@ -1,7 +1,7 @@
 /* src/loader/dyn_loader.rs */
 
 #[cfg(feature = "alloc")]
-use crate::{FmtError, Format, LoadResult, PreProcess, Source, format::AnyFormat};
+use crate::{FmtError, Format, LoadResult, PreProcess, Source, ValidateConfig, format::AnyFormat};
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
 #[cfg(feature = "alloc")]
@@ -24,7 +24,7 @@ impl DynLoader {
 	/// Automatically detects and loads the configuration based on registered formats.
 	pub async fn load<T>(&self, base_name: &str) -> LoadResult<T>
 	where
-		T: DeserializeOwned + PreProcess,
+		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
 		for format in &self.formats {
 			for ext in format.extensions() {
@@ -40,7 +40,7 @@ impl DynLoader {
 	/// Directly loads a specific path, selecting parser by extension.
 	pub async fn load_file<T>(&self, path: &str) -> LoadResult<T>
 	where
-		T: DeserializeOwned + PreProcess,
+		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
 		let ext = if let Some(idx) = path.rfind('.') {
 			&path[idx + 1..]
@@ -63,7 +63,7 @@ impl DynLoader {
 		T: DeserializeOwned + PreProcess + validator::Validate,
 	{
 		match self.load::<T>(base_name).await {
-			LoadResult::Ok(obj) => obj.validate().map_err(|_| FmtError::Validation),
+			LoadResult::Ok(_) => Ok(()),
 			LoadResult::Invalid(e) => Err(e),
 			LoadResult::NotFound => Err(FmtError::NotFound),
 		}
@@ -72,7 +72,7 @@ impl DynLoader {
 	/// Loads the configuration using a specific key and format.
 	async fn load_explicit<T>(&self, key: &str, format: &AnyFormat) -> LoadResult<T>
 	where
-		T: DeserializeOwned + PreProcess,
+		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
 		let bytes = match self.source.read(key).await {
 			Ok(b) => b,
@@ -84,6 +84,11 @@ impl DynLoader {
 			Ok(mut obj) => {
 				obj.pre_process();
 				obj.set_context(key);
+
+				if let Err(e) = obj.validate_config() {
+					return LoadResult::Invalid(e);
+				}
+
 				LoadResult::Ok(obj)
 			}
 			Err(e) => LoadResult::Invalid(e),
