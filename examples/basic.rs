@@ -3,7 +3,11 @@
 use fmtstruct::{DynLoader, FileSource, LoadResult};
 use serde::Deserialize;
 
+#[cfg(feature = "validate")]
+use validator::Validate;
+
 #[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "validate", derive(Validate))]
 struct Config {
 	name: String,
 	version: u32,
