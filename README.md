@@ -32,7 +32,7 @@ Check the `examples` directory for runnable code:
 
 ```toml
 [dependencies]
-fmtstruct = { version = "0.1", features = ["full"] }
+fmtstruct = { version = "0.2", features = ["full"] }
 ```
 
 ## License
