@@ -97,6 +97,7 @@ pub trait Format: Send + Sync {
 /// In `alloc` mode, this uses `async_trait` for object safety (allowing `dyn Source`).
 /// In `no_alloc` mode, this uses native `async fn` (static dispatch only).
 #[cfg_attr(feature = "alloc", async_trait)]
+#[allow(async_fn_in_trait)]
 pub trait Source: Send + Sync {
 	/// Read raw data as a vector of bytes.
 	#[cfg(feature = "alloc")]
