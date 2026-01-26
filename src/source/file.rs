@@ -21,6 +21,14 @@ impl FileSource {
 	async fn resolve_secure(&self, key: &str) -> Result<PathBuf, FmtError> {
 		let path = self.root.join(key);
 
+		// Basic path traversal check before canonicalization
+		// (canonicalize fails if file doesn't exist)
+		for component in std::path::Path::new(key).components() {
+			if matches!(component, std::path::Component::ParentDir) {
+				return Err(FmtError::SandboxViolation);
+			}
+		}
+
 		// Resolve root to absolute path
 		let canonical_root = fs::canonicalize(&self.root).await.map_err(FmtError::Io)?;
 
