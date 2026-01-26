@@ -1,6 +1,6 @@
 [package]
 name = "fmtstruct"
-version = "0.0.8"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.93"
 description = "Format-agnostic configuration loader supporting no_std, alloc, and std."
@@ -21,10 +21,11 @@ serde_yaml = { version = "0.9", optional = true }
 postcard = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 async-trait = { version = "0.1", optional = true }
 fancy-regex = { version = "0.14", optional = true }
+log = { version = "0.4", optional = true }
 
 [features]
 default = ["std"]
-full = ["fs", "json", "toml", "yaml", "postcard", "validate", "postcard_std"]
+full = ["fs", "json", "toml", "yaml", "postcard", "validate", "regex", "postcard_std", "logging"]
 std = ["alloc", "serde/std", "dep:thiserror"]
 alloc = ["serde/alloc", "dep:async-trait"]
 fs = ["std", "dep:tokio"]
@@ -35,6 +36,7 @@ postcard = ["dep:postcard", "alloc"]
 postcard_std = ["postcard", "std", "postcard/use-std"]
 validate = ["dep:validator"]
 regex = ["validate", "std", "dep:fancy-regex"]
+logging = ["dep:log"]
 
 [dev-dependencies]
 regex = "1"
