@@ -5,6 +5,9 @@
 #[cfg(feature = "alloc")]
 extern crate alloc;
 
+#[cfg(feature = "alloc")]
+use alloc::boxed::Box;
+
 pub mod error;
 pub mod format;
 pub mod loader;
@@ -45,6 +48,37 @@ pub trait PreProcess {
 	/// Set context information (e.g., file path or key).
 	fn set_context(&mut self, _ctx: &str) {}
 }
+
+/// Internal trait for optional validation.
+#[cfg(feature = "validate")]
+pub trait ValidateConfig: validator::Validate {
+	fn validate_config(&self) -> Result<(), FmtError> {
+		self.validate().map_err(|e| {
+			#[cfg(feature = "std")]
+			{
+				FmtError::Validation(e)
+			}
+			#[cfg(not(feature = "std"))]
+			{
+				_ = e;
+				FmtError::Validation
+			}
+		})
+	}
+}
+
+#[cfg(feature = "validate")]
+impl<T: validator::Validate> ValidateConfig for T {}
+
+#[cfg(not(feature = "validate"))]
+pub trait ValidateConfig {
+	fn validate_config(&self) -> Result<(), FmtError> {
+		Ok(())
+	}
+}
+
+#[cfg(not(feature = "validate"))]
+impl<T> ValidateConfig for T {}
 
 /// Abstract format parser that converts bytes into a structured object.
 ///
