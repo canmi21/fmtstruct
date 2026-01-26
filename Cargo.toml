@@ -19,16 +19,18 @@ toml = { version = "0.8", optional = true, default-features = false, features = 
 serde_json = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 serde_yaml = { version = "0.9", optional = true }
 postcard = { version = "1", optional = true, default-features = false, features = ["alloc"] }
+async-trait = { version = "0.1", optional = true }
 
 [features]
 default = ["std", "json", "toml"]
 std = ["alloc", "serde/std", "dep:thiserror"]
-alloc = ["serde/alloc"]
+alloc = ["serde/alloc", "dep:async-trait"]
 fs = ["std", "dep:tokio"]
 json = ["dep:serde_json", "alloc"]
 toml = ["dep:toml", "alloc"]
 yaml = ["dep:serde_yaml", "std"]
 postcard = ["dep:postcard", "alloc"]
 validate = ["dep:validator"]
+async-trait = ["dep:async-trait"]
 
 [dev-dependencies]
