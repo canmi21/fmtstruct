@@ -8,9 +8,28 @@ use fmtstruct::format::Postcard;
 use fmtstruct::format::Toml;
 #[cfg(feature = "yaml")]
 use fmtstruct::format::Yaml;
+
+#[cfg(any(
+	feature = "json",
+	feature = "toml",
+	feature = "yaml",
+	feature = "postcard"
+))]
 use fmtstruct::{FmtError, Format};
+#[cfg(any(
+	feature = "json",
+	feature = "toml",
+	feature = "yaml",
+	feature = "postcard"
+))]
 use serde::Deserialize;
 
+#[cfg(any(
+	feature = "json",
+	feature = "toml",
+	feature = "yaml",
+	feature = "postcard"
+))]
 #[derive(Debug, Deserialize, PartialEq)]
 struct TestConfig {
 	name: String,
