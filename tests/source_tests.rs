@@ -1,5 +1,7 @@
 /* tests/source_tests.rs */
 
+#![cfg(feature = "alloc")]
+
 #[cfg(feature = "fs")]
 use fmtstruct::FileSource;
 use fmtstruct::MemorySource;
