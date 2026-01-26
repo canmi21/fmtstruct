@@ -82,5 +82,8 @@ fn test_postcard_format() {
 fn test_parse_error() {
 	let json = Json;
 	let result: Result<TestConfig, FmtError> = json.parse(b"invalid");
+	#[cfg(feature = "alloc")]
+	assert!(matches!(result, Err(FmtError::ParseError(_))));
+	#[cfg(not(feature = "alloc"))]
 	assert!(matches!(result, Err(FmtError::ParseError)));
 }
