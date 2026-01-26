@@ -24,7 +24,7 @@ fancy-regex = { version = "0.14", optional = true }
 
 [features]
 default = ["std"]
-full = ["fs", "json", "toml", "yaml", "postcard", "validate", "regex"]
+full = ["fs", "json", "toml", "yaml", "postcard", "validate", "postcard_std"]
 std = ["alloc", "serde/std", "dep:thiserror"]
 alloc = ["serde/alloc", "dep:async-trait"]
 fs = ["std", "dep:tokio"]
@@ -32,10 +32,13 @@ json = ["dep:serde_json", "alloc"]
 toml = ["dep:toml", "alloc"]
 yaml = ["dep:serde_yaml", "std"]
 postcard = ["dep:postcard", "alloc"]
+postcard_std = ["postcard", "std", "postcard/use-std"]
 validate = ["dep:validator"]
 regex = ["validate", "std", "dep:fancy-regex"]
 
 [dev-dependencies]
+regex = "1"
+tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs"] }
 
 [[example]]
