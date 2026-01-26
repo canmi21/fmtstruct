@@ -1,31 +1,34 @@
 [package]
 name = "fmtstruct"
-version = "0.1.1"
+version = "0.0.1"
 edition = "2024"
 rust-version = "1.93"
-description = "Format-agnostic configuration loader supporting no_std, alloc, and std."
+description = "Format-agnostic configuration loader supporting no_std, alloc, and std environments."
 license = "MIT"
 repository = "https://github.com/canmi21/fmtstruct"
-categories = ["config", "encoding", "no-std", "parser-implementations"]
+categories = ["config", "no-std", "asynchronous"]
 keywords = ["config", "no_std", "serde", "parsing", "struct"]
 readme = "README.md"
 
 [dependencies]
 serde = { version = "1", default-features = false, features = ["derive"] }
-validator = { version = "0.20", default-features = false, features = ["derive"] }
+validator = { version = "0.20", default-features = false, features = ["derive"], optional = true }
 thiserror = { version = "2", optional = true }
 tokio = { version = "1", optional = true, default-features = false, features = ["fs", "io-util"] }
 toml = { version = "0.8", optional = true, default-features = false, features = ["parse", "display"] }
 serde_json = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 serde_yaml = { version = "0.9", optional = true }
+postcard = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 
 [features]
-default = ["std"]
+default = ["std", "json", "toml"]
 std = ["alloc", "serde/std", "dep:thiserror"]
 alloc = ["serde/alloc"]
 fs = ["std", "dep:tokio"]
 json = ["dep:serde_json", "alloc"]
 toml = ["dep:toml", "alloc"]
 yaml = ["dep:serde_yaml", "std"]
+postcard = ["dep:postcard", "alloc"]
+validate = ["dep:validator"]
 
 [dev-dependencies]
