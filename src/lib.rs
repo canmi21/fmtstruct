@@ -42,6 +42,8 @@ pub enum LoadResult<T> {
 pub trait PreProcess {
 	/// Perform data normalization or context injection.
 	fn pre_process(&mut self) {}
+	/// Set context information (e.g., file path or key).
+	fn set_context(&mut self, _ctx: &str) {}
 }
 
 /// Abstract format parser that converts bytes into a structured object.
