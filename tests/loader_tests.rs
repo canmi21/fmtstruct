@@ -1,5 +1,7 @@
 /* tests/loader_tests.rs */
 
+#![cfg(feature = "json")]
+
 use async_trait::async_trait;
 use fmtstruct::format::AnyFormat;
 use fmtstruct::{DynLoader, FmtError, LoadResult, PreProcess, Source};
