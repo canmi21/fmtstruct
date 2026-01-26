@@ -21,14 +21,17 @@ impl Source for MockSource {
 	}
 }
 
+#[cfg(feature = "validate")]
+use validator::Validate;
+
 #[derive(Debug, Deserialize, Default)]
+#[cfg_attr(feature = "validate", derive(Validate))]
 struct TestConfig {
 	#[serde(default)]
 	processed: bool,
 	#[serde(default)]
 	ctx: String,
 }
-
 impl PreProcess for TestConfig {
 	fn pre_process(&mut self) {
 		self.processed = true;
