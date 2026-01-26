@@ -1,92 +1,47 @@
 /* src/error.rs */
 
-use core::fmt;
-
-/// Result type for loading operations.
-#[derive(Debug)]
-pub enum LoadResult<T> {
-    /// Successfully loaded and parsed.
-    Ok(T),
-    /// Resource not found.
-    NotFound,
-    /// Resource exists but is invalid (parse error, validation error, etc.).
-    Invalid(FmtError),
-}
-
-/// Core error type for the crate.
 #[derive(Debug)]
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum FmtError {
-    /// Error from the underlying data source (e.g., File IO).
-    #[cfg(feature = "std")]
-    #[error("source error: {0}")]
-    Source(#[from] std::io::Error),
+	/// Parsing error from format implementation.
+	#[cfg_attr(feature = "std", error("parse error"))]
+	ParseError,
 
-    /// Error during format parsing.
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(feature = "std", error("format error: {0}"))]
-    Format(alloc::string::String),
-    #[cfg(not(feature = "alloc"))]
-    #[cfg_attr(feature = "std", error("format error"))]
-    Format,
+	/// Resource not found.
+	#[cfg_attr(feature = "std", error("not found"))]
+	NotFound,
 
-    /// Error during data validation.
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(feature = "std", error("validation error: {0}"))]
-    Validation(validator::ValidationErrors),
-    #[cfg(not(feature = "alloc"))]
-    #[cfg_attr(feature = "std", error("validation error"))]
-    Validation,
+	/// Generic static error message.
+	#[cfg_attr(feature = "std", error("custom error: {0}"))]
+	Custom(&'static str),
 
-    /// Path traversal or sandbox violation.
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(feature = "std", error("sandbox violation: {path} escapes {root}"))]
-    Sandbox { 
-        path: alloc::string::String, 
-        root: alloc::string::String 
-    },
-    #[cfg(not(feature = "alloc"))]
-    #[cfg_attr(feature = "std", error("sandbox violation"))]
-    Sandbox,
+	/// IO error from source, only available in std environment.
+	#[cfg(feature = "std")]
+	#[error("io error: {0}")]
+	Io(#[from] std::io::Error),
 
-    /// Resource not found.
-    #[cfg_attr(feature = "std", error("not found"))]
-    NotFound,
+	/// Sandbox violation in file system source.
+	#[cfg(feature = "fs")]
+	#[error("sandbox violation")]
+	SandboxViolation,
 
-    /// A generic error message.
-    #[cfg(feature = "alloc")]
-    #[cfg_attr(feature = "std", error("{0}"))]
-    Message(alloc::string::String),
-    #[cfg(not(feature = "alloc"))]
-    #[cfg_attr(feature = "std", error("generic error"))]
-    Message(&'static str),
+	/// Validation error from validator crate.
+	#[cfg(feature = "validate")]
+	#[error("validation error")]
+	Validation,
 }
 
 #[cfg(not(feature = "std"))]
 impl fmt::Display for FmtError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            #[cfg(feature = "alloc")]
-            Self::Format(s) => write!(f, "Format error: {}", s),
-            #[cfg(not(feature = "alloc"))]
-            Self::Format => write!(f, "Format error"),
-
-            #[cfg(feature = "alloc")]
-            Self::Validation(_) => write!(f, "Validation error"),
-            #[cfg(not(feature = "alloc"))]
-            Self::Validation => write!(f, "Validation error"),
-
-            #[cfg(feature = "alloc")]
-            Self::Sandbox { .. } => write!(f, "Sandbox violation"),
-            #[cfg(not(feature = "alloc"))]
-            Self::Sandbox => write!(f, "Sandbox violation"),
-
-            Self::NotFound => write!(f, "Not found"),
-
-            #[cfg(feature = "alloc")]
-            Self::Message(s) => write!(f, "{}", s),
-            #[cfg(not(feature = "alloc"))]
-            Self::Message(s) => write!(f, "{}", s),
-        }
-    }
+	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+		match self {
+			Self::ParseError => write!(f, "Parse error"),
+			Self::NotFound => write!(f, "Not found"),
+			Self::Custom(s) => write!(f, "Custom error: {}", s),
+			#[cfg(feature = "fs")]
+			Self::SandboxViolation => write!(f, "Sandbox violation"),
+			#[cfg(feature = "validate")]
+			Self::Validation => write!(f, "Validation error"),
+		}
+	}
 }
