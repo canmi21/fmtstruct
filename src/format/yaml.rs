@@ -12,6 +12,16 @@ impl Format for Yaml {
 	}
 
 	fn parse<T: DeserializeOwned>(&self, input: &[u8]) -> Result<T, FmtError> {
-		serde_yaml::from_slice(input).map_err(|_| FmtError::ParseError)
+		serde_yaml::from_slice(input).map_err(|e| {
+			#[cfg(feature = "alloc")]
+			{
+				FmtError::ParseError(alloc::format!("{}", e))
+			}
+			#[cfg(not(feature = "alloc"))]
+			{
+				_ = e;
+				FmtError::ParseError
+			}
+		})
 	}
 }
