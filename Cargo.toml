@@ -20,10 +20,11 @@ serde_json = { version = "1", optional = true, default-features = false, feature
 serde_yaml = { version = "0.9", optional = true }
 postcard = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 async-trait = { version = "0.1", optional = true }
+fancy-regex = { version = "0.14", optional = true }
 
 [features]
 default = ["std"]
-full = ["fs", "json", "toml", "yaml", "postcard", "validate"]
+full = ["fs", "json", "toml", "yaml", "postcard", "validate", "regex"]
 std = ["alloc", "serde/std", "dep:thiserror"]
 alloc = ["serde/alloc", "dep:async-trait"]
 fs = ["std", "dep:tokio"]
@@ -32,6 +33,7 @@ toml = ["dep:toml", "alloc"]
 yaml = ["dep:serde_yaml", "std"]
 postcard = ["dep:postcard", "alloc"]
 validate = ["dep:validator"]
+regex = ["validate", "std", "dep:fancy-regex"]
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs"] }
