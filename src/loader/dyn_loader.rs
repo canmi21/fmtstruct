@@ -48,7 +48,8 @@ impl DynLoader {
 			Err(e) => return LoadResult::Invalid(e),
 		};
 
-		        match format.parse::<T>(&bytes) {			Ok(mut obj) => {
+		match format.parse::<T>(&bytes) {
+			Ok(mut obj) => {
 				obj.pre_process();
 				LoadResult::Ok(obj)
 			}
