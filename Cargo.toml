@@ -6,7 +6,7 @@ rust-version = "1.93"
 description = "Format-agnostic configuration loader supporting no_std, alloc, and std."
 license = "MIT"
 repository = "https://github.com/canmi21/fmtstruct"
-categories = ["config", "no-std", "asynchronous"]
+categories = ["config", "no-std::no-alloc", "asynchronous"]
 keywords = ["config", "no_std", "serde", "parsing", "struct"]
 readme = "README.md"
 
