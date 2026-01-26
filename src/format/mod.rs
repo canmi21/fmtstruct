@@ -47,6 +47,12 @@ impl Format for AnyFormat {
 			Self::Yaml => Yaml.extensions(),
 			#[cfg(feature = "postcard")]
 			Self::Postcard => Postcard.extensions(),
+			#[cfg(not(any(
+				feature = "json",
+				feature = "toml",
+				feature = "yaml",
+				feature = "postcard"
+			)))]
 			_ => unreachable!(),
 		}
 	}
@@ -61,6 +67,12 @@ impl Format for AnyFormat {
 			Self::Yaml => Yaml.parse(_input),
 			#[cfg(feature = "postcard")]
 			Self::Postcard => Postcard.parse(_input),
+			#[cfg(not(any(
+				feature = "json",
+				feature = "toml",
+				feature = "yaml",
+				feature = "postcard"
+			)))]
 			_ => unreachable!(),
 		}
 	}
