@@ -15,12 +15,12 @@ serde = { version = "1", default-features = false, features = ["derive"] }
 validator = { version = "0.20", default-features = false, features = ["derive"], optional = true }
 thiserror = { version = "2", optional = true }
 tokio = { version = "1", optional = true, default-features = false, features = ["fs", "io-util"] }
-toml = { version = "0.8", optional = true, default-features = false, features = ["parse", "display"] }
+toml = { version = "0.9", optional = true, default-features = false, features = ["parse", "display"] }
 serde_json = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 serde_yaml = { version = "0.9", optional = true }
 postcard = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 async-trait = { version = "0.1", optional = true }
-fancy-regex = { version = "0.14", optional = true }
+fancy-regex = { version = "0.17", optional = true }
 log = { version = "0.4", optional = true }
 
 [features]
