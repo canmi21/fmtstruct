@@ -47,19 +47,21 @@ impl Format for AnyFormat {
 			Self::Yaml => Yaml.extensions(),
 			#[cfg(feature = "postcard")]
 			Self::Postcard => Postcard.extensions(),
+			_ => unreachable!(),
 		}
 	}
 
-	fn parse<T: DeserializeOwned>(&self, input: &[u8]) -> Result<T, FmtError> {
+	fn parse<T: DeserializeOwned>(&self, _input: &[u8]) -> Result<T, FmtError> {
 		match self {
 			#[cfg(feature = "json")]
-			Self::Json => Json.parse(input),
+			Self::Json => Json.parse(_input),
 			#[cfg(feature = "toml")]
-			Self::Toml => Toml.parse(input),
+			Self::Toml => Toml.parse(_input),
 			#[cfg(feature = "yaml")]
-			Self::Yaml => Yaml.parse(input),
+			Self::Yaml => Yaml.parse(_input),
 			#[cfg(feature = "postcard")]
-			Self::Postcard => Postcard.parse(input),
+			Self::Postcard => Postcard.parse(_input),
+			_ => unreachable!(),
 		}
 	}
 }
