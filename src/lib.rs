@@ -10,7 +10,18 @@ pub mod format;
 pub mod loader;
 pub mod source;
 
+// Re-export core types
 pub use error::FmtError;
+pub use loader::StaticLoader;
+
+#[cfg(feature = "alloc")]
+pub use loader::DynLoader;
+
+#[cfg(feature = "alloc")]
+pub use source::MemorySource;
+
+#[cfg(feature = "fs")]
+pub use source::FileSource;
 
 #[cfg(feature = "alloc")]
 use async_trait::async_trait;
