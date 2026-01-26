@@ -1,5 +1,7 @@
 /* tests/validation_tests.rs */
 
+#![cfg(all(feature = "json", feature = "validate"))]
+
 use async_trait::async_trait;
 use fmtstruct::format::AnyFormat;
 use fmtstruct::{DynLoader, FmtError, LoadResult, PreProcess, Source};
