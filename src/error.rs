@@ -8,6 +8,12 @@ use core::fmt;
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum FmtError {
 	/// Parsing error from format implementation.
+	#[cfg(feature = "alloc")]
+	#[cfg_attr(feature = "std", error("parse error: {0}"))]
+	ParseError(alloc::string::String),
+
+	/// Parsing error from format implementation.
+	#[cfg(not(feature = "alloc"))]
 	#[cfg_attr(feature = "std", error("parse error"))]
 	ParseError,
 
@@ -39,6 +45,9 @@ pub enum FmtError {
 impl fmt::Display for FmtError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
+			#[cfg(feature = "alloc")]
+			Self::ParseError(msg) => write!(f, "Parse error: {}", msg),
+			#[cfg(not(feature = "alloc"))]
 			Self::ParseError => write!(f, "Parse error"),
 			Self::NotFound => write!(f, "Not found"),
 			Self::Custom(s) => write!(f, "Custom error: {}", s),
