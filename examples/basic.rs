@@ -8,6 +8,7 @@ use validator::Validate;
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "validate", derive(Validate))]
+#[allow(dead_code)]
 struct Config {
 	name: String,
 	version: u32,
