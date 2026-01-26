@@ -51,10 +51,7 @@ impl PreProcess for TestConfig {
 }
 
 #[cfg(feature = "validate")]
-use validator::Validate;
-
-#[cfg(feature = "validate")]
-impl Validate for TestConfig {
+impl validator::Validate for TestConfig {
 	fn validate(&self) -> Result<(), validator::ValidationErrors> {
 		if self.value < 0 {
 			let mut errors = validator::ValidationErrors::new();
@@ -64,7 +61,6 @@ impl Validate for TestConfig {
 		Ok(())
 	}
 }
-
 // --- Tests ---
 
 #[tokio::test]
@@ -126,8 +122,10 @@ async fn test_parse_error() {
 
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
-		LoadResult::Invalid(FmtError::ParseError) => {} // Matches because we haven't updated ParseError payload yet (Phase 3)
-		// Note: After Phase 3 this match might need updating if ParseError carries a string
+		#[cfg(feature = "alloc")]
+		LoadResult::Invalid(FmtError::ParseError(_)) => {}
+		#[cfg(not(feature = "alloc"))]
+		LoadResult::Invalid(FmtError::ParseError) => {}
 		_ => panic!("Expected Invalid(ParseError), got {:?}", result),
 	}
 }
