@@ -12,6 +12,8 @@ pub mod source;
 
 pub use error::FmtError;
 
+#[cfg(feature = "alloc")]
+use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 
 /// Result of a loading operation.
@@ -32,6 +34,9 @@ pub trait PreProcess {
 }
 
 /// Abstract format parser that converts bytes into a structured object.
+///
+/// Note: This trait is not object-safe due to the generic `parse` method.
+/// Use `format::AnyFormat` for dynamic dispatch.
 pub trait Format: Send + Sync {
 	/// List of supported extensions or identifiers.
 	fn extensions(&self) -> &'static [&'static str];
@@ -41,7 +46,10 @@ pub trait Format: Send + Sync {
 }
 
 /// Abstract data source that retrieves raw bytes by key.
-#[allow(async_fn_in_trait)]
+///
+/// In `alloc` mode, this uses `async_trait` for object safety (allowing `dyn Source`).
+/// In `no_alloc` mode, this uses native `async fn` (static dispatch only).
+#[cfg_attr(feature = "alloc", async_trait)]
 pub trait Source: Send + Sync {
 	/// Read raw data as a vector of bytes.
 	#[cfg(feature = "alloc")]
