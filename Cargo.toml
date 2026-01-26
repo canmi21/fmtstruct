@@ -1,31 +1,31 @@
 [package]
 name = "fmtstruct"
-license = "MIT"
-version = "0.0.2"
+version = "0.1.0"
 edition = "2024"
 rust-version = "1.93"
-categories = ["asynchronous", "config", "parsing"]
-description = "A format-agnostic configuration loader, parser, and validator."
-keywords = ["configuration", "loader", "parser"]
+description = "Format-agnostic configuration loader supporting no_std, alloc, and std."
+license = "MIT"
+repository = "https://github.com/canmi21/fmtstruct"
+categories = ["config", "encoding", "no-std", "parser-implementations"]
+keywords = ["config", "no_std", "serde", "parsing", "struct"]
 readme = "README.md"
-repository = "https://github.com/canmi21/fmtstruct.git"
 
 [dependencies]
-async-trait = "0.1"
-serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1", optional = true }
+serde = { version = "1", default-features = false, features = ["derive"] }
+validator = { version = "0.20", default-features = false, features = ["derive"] }
+thiserror = { version = "2", optional = true }
+tokio = { version = "1", optional = true, default-features = false, features = ["fs", "io-util"] }
+toml = { version = "0.8", optional = true, default-features = false, features = ["parse", "display"] }
+serde_json = { version = "1", optional = true, default-features = false, features = ["alloc"] }
 serde_yaml = { version = "0.9", optional = true }
-thiserror = "2"
-tokio = { version = "1", default-features = false, features = ["fs"], optional = true }
-toml = { version = "0.9", optional = true }
-validator = { version = "0.20", features = ["derive"] }
 
 [features]
-default = []
-full = ["fs", "toml", "yaml", "json"]
-fs = ["dep:tokio"]
-toml = ["dep:toml"]
-yaml = ["dep:serde_yaml"]
-json = ["dep:serde_json"]
+default = ["std"]
+std = ["alloc", "serde/std", "dep:thiserror"]
+alloc = ["serde/alloc"]
+fs = ["std", "dep:tokio"]
+json = ["dep:serde_json", "alloc"]
+toml = ["dep:toml", "alloc"]
+yaml = ["dep:serde_yaml", "std"]
 
 [dev-dependencies]
