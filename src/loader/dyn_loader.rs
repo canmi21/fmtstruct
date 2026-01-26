@@ -16,9 +16,50 @@ pub struct DynLoader {
 }
 
 #[cfg(feature = "alloc")]
+pub struct DynLoaderBuilder {
+	source: Option<Box<dyn Source>>,
+	formats: Vec<AnyFormat>,
+}
+
+#[cfg(feature = "alloc")]
+impl DynLoaderBuilder {
+	pub fn new() -> Self {
+		Self {
+			source: None,
+			formats: Vec::new(),
+		}
+	}
+
+	pub fn source(mut self, source: impl Source + 'static) -> Self {
+		self.source = Some(Box::new(source));
+		self
+	}
+
+	pub fn format(mut self, format: AnyFormat) -> Self {
+		self.formats.push(format);
+		self
+	}
+
+	pub fn build(self) -> Result<DynLoader, &'static str> {
+		let source = self.source.ok_or("source is required")?;
+		if self.formats.is_empty() {
+			return Err("at least one format is required");
+		}
+		Ok(DynLoader {
+			source,
+			formats: self.formats,
+		})
+	}
+}
+
+#[cfg(feature = "alloc")]
 impl DynLoader {
 	pub fn new(source: Box<dyn Source>, formats: Vec<AnyFormat>) -> Self {
 		Self { source, formats }
+	}
+
+	pub fn builder() -> DynLoaderBuilder {
+		DynLoaderBuilder::new()
 	}
 
 	/// Automatically detects and loads the configuration based on registered formats.
@@ -26,15 +67,43 @@ impl DynLoader {
 	where
 		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
+		let mut found = None;
+
 		for format in &self.formats {
 			for ext in format.extensions() {
 				let key = alloc::format!("{}.{}", base_name, ext);
 				if self.source.exists(&key).await {
-					return self.load_explicit(&key, format).await;
+					#[cfg(feature = "logging")]
+					{
+						if let Some((ref first_key, _)) = found {
+							log::warn!(
+								"Conflict detected: multiple configuration files found for '{}'. Using '{}', ignoring '{}'.",
+								base_name,
+								first_key,
+								key
+							);
+							continue;
+						}
+					}
+
+					if found.is_none() {
+						found = Some((key, format));
+						#[cfg(not(feature = "logging"))]
+						break;
+					}
 				}
 			}
+			#[cfg(not(feature = "logging"))]
+			if found.is_some() {
+				break;
+			}
 		}
-		LoadResult::NotFound
+
+		if let Some((key, format)) = found {
+			self.load_explicit(&key, format).await
+		} else {
+			LoadResult::NotFound
+		}
 	}
 
 	/// Directly loads a specific path, selecting parser by extension.
@@ -45,6 +114,11 @@ impl DynLoader {
 		let ext = if let Some(idx) = path.rfind('.') {
 			&path[idx + 1..]
 		} else {
+			#[cfg(feature = "alloc")]
+			return LoadResult::Invalid(FmtError::ParseError(alloc::string::String::from(
+				"missing extension",
+			)));
+			#[cfg(not(feature = "alloc"))]
 			return LoadResult::Invalid(FmtError::ParseError);
 		};
 
