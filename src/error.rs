@@ -1,5 +1,9 @@
 /* src/error.rs */
 
+#[cfg(not(feature = "std"))]
+use core::fmt;
+
+/// Core error type for the fmtstruct crate.
 #[derive(Debug)]
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum FmtError {
@@ -42,6 +46,8 @@ impl fmt::Display for FmtError {
 			Self::SandboxViolation => write!(f, "Sandbox violation"),
 			#[cfg(feature = "validate")]
 			Self::Validation => write!(f, "Validation error"),
+			#[cfg(feature = "std")]
+			Self::Io(_) => unreachable!(), // Should be handled by thiserror if std is enabled
 		}
 	}
 }
