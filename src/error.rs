@@ -31,8 +31,8 @@ pub enum FmtError {
 
 	/// Validation error from validator crate.
 	#[cfg(feature = "validate")]
-	#[error("validation error")]
-	Validation,
+	#[cfg_attr(feature = "std", error("validation failed: {0}"))]
+	Validation(#[cfg(feature = "std")] validator::ValidationErrors),
 }
 
 #[cfg(not(feature = "std"))]
@@ -45,9 +45,7 @@ impl fmt::Display for FmtError {
 			#[cfg(feature = "fs")]
 			Self::SandboxViolation => write!(f, "Sandbox violation"),
 			#[cfg(feature = "validate")]
-			Self::Validation => write!(f, "Validation error"),
-			#[cfg(feature = "std")]
-			Self::Io(_) => unreachable!(), // Should be handled by thiserror if std is enabled
+			Self::Validation(_) => write!(f, "Validation error"),
 		}
 	}
 }
