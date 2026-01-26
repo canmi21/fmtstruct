@@ -1,6 +1,13 @@
 /* tests/format_tests.rs */
 
-use fmtstruct::format::{Json, Postcard, Toml, Yaml};
+#[cfg(feature = "json")]
+use fmtstruct::format::Json;
+#[cfg(feature = "postcard")]
+use fmtstruct::format::Postcard;
+#[cfg(feature = "toml")]
+use fmtstruct::format::Toml;
+#[cfg(feature = "yaml")]
+use fmtstruct::format::Yaml;
 use fmtstruct::{FmtError, Format};
 use serde::Deserialize;
 
@@ -10,6 +17,7 @@ struct TestConfig {
 	value: i32,
 }
 
+#[cfg(feature = "json")]
 #[test]
 fn test_json_format() {
 	let json = Json;
@@ -78,6 +86,7 @@ fn test_postcard_format() {
 	assert_eq!(cfg.value, 4);
 }
 
+#[cfg(feature = "json")]
 #[test]
 fn test_parse_error() {
 	let json = Json;
