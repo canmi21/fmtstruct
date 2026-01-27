@@ -75,7 +75,7 @@ async fn test_dyn_loader_auto_detect() {
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 
 	match result {
-		LoadResult::Ok(cfg) => {
+		LoadResult::Ok { value: cfg, .. } => {
 			assert_eq!(cfg.name, "test");
 			assert_eq!(cfg.value, 42);
 			assert_eq!(cfg.context, "config.json");
@@ -94,7 +94,7 @@ async fn test_dyn_loader_load_file() {
 	let result: LoadResult<TestConfig> = loader.load_file("specific.json").await;
 
 	match result {
-		LoadResult::Ok(cfg) => {
+		LoadResult::Ok { value: cfg, .. } => {
 			assert_eq!(cfg.name, "file");
 			assert_eq!(cfg.value, 10);
 			assert_eq!(cfg.context, "specific.json");
