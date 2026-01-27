@@ -7,6 +7,10 @@ extern crate alloc;
 
 #[cfg(feature = "alloc")]
 use alloc::boxed::Box;
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::string::String;
+#[cfg(feature = "std")]
+use std::path::PathBuf;
 
 pub mod error;
 pub mod format;
@@ -19,6 +23,21 @@ pub use loader::StaticLoader;
 
 #[cfg(feature = "alloc")]
 pub use loader::DynLoader;
+
+/// Metadata about the loaded resource.
+#[cfg(feature = "std")]
+#[derive(Debug, Clone)]
+pub struct LoadInfo {
+	pub path: PathBuf,
+	pub format: &'static str,
+}
+
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+#[derive(Debug, Clone)]
+pub struct LoadInfo {
+	pub key: String,
+	pub format: &'static str,
+}
 
 #[cfg(feature = "alloc")]
 pub use source::MemorySource;
@@ -33,8 +52,12 @@ use serde::de::DeserializeOwned;
 /// Result of a loading operation.
 #[derive(Debug)]
 pub enum LoadResult<T> {
-	/// Successfully loaded and parsed.
+	#[cfg(feature = "alloc")]
+	Ok { value: T, info: LoadInfo },
+
+	#[cfg(not(feature = "alloc"))]
 	Ok(T),
+
 	/// Resource not found at the given key.
 	NotFound,
 	/// Resource exists but is invalid.
