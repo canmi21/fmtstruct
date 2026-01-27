@@ -53,7 +53,7 @@ async fn test_preprocess_hooks() {
 
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
-		LoadResult::Ok(cfg) => {
+		LoadResult::Ok { value: cfg, .. } => {
 			assert!(cfg.processed);
 			assert_eq!(cfg.ctx, "config.json");
 		}
