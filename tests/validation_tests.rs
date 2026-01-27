@@ -55,7 +55,7 @@ async fn test_validation_success() {
 	let loader = DynLoader::new(Box::new(source), vec![AnyFormat::Json]);
 
 	let result: LoadResult<TestConfig> = loader.load("config").await;
-	assert!(matches!(result, LoadResult::Ok(_)));
+	assert!(matches!(result, LoadResult::Ok { .. }));
 }
 
 #[tokio::test]
