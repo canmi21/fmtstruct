@@ -28,7 +28,7 @@ async fn main() {
 	let loader = DynLoader::new(Box::new(source), formats);
 
 	match loader.load::<Config>("config").await {
-		LoadResult::Ok(cfg) => println!("Loaded: {:?}", cfg),
+		LoadResult::Ok { value: cfg, .. } => println!("Loaded: {:?}", cfg),
 		LoadResult::NotFound => println!("Not found"),
 		LoadResult::Invalid(e) => println!("Error: {}", e),
 	}
