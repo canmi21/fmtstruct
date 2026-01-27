@@ -46,7 +46,21 @@ where
 					return LoadResult::Invalid(e);
 				}
 
-				LoadResult::Ok(obj)
+				LoadResult::Ok {
+					value: obj,
+					info: crate::LoadInfo {
+						#[cfg(feature = "std")]
+						path: std::path::PathBuf::from(key),
+						#[cfg(not(feature = "std"))]
+						key: alloc::string::String::from(key),
+						format: self
+							.format
+							.extensions()
+							.first()
+							.copied()
+							.unwrap_or("unknown"),
+					},
+				}
 			}
 			Err(e) => LoadResult::Invalid(e),
 		}
