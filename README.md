@@ -35,6 +35,21 @@ Check the `examples` directory for runnable code:
 fmtstruct = { version = "0.2", features = ["full"] }
 ```
 
+## Feature Flags
+
+| Feature | Description |
+|---------|-------------|
+| `std` | Enables standard library support (path handling, better error reporting). |
+| `alloc` | Enables heap allocation support (required for `DynLoader` and most formats). |
+| `fs` | Enables `FileSource` for loading configuration from the filesystem. |
+| `json` | Enables JSON format support. |
+| `toml` | Enables TOML format support. |
+| `yaml` | Enables YAML format support. |
+| `postcard` | Enables Postcard (binary) format support (no_std). |
+| `validate` | Enables configuration validation via the `validator` crate. |
+| `regex` | Enables regex validation support (requires `validate`). |
+| `full` | Enables all features above. |
+
 ## License
 
 Released under the MIT License © 2026 [Canmi](https://github.com/canmi21)
