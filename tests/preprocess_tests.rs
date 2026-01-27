@@ -48,9 +48,7 @@ async fn test_preprocess_hooks() {
 	let mut data = HashMap::new();
 	data.insert("config.json".to_string(), r#"{}"#.as_bytes().to_vec());
 	let source = MockSource { data };
-
 	let loader = DynLoader::new(Box::new(source), vec![AnyFormat::Json]);
-
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
 		LoadResult::Ok { value: cfg, .. } => {

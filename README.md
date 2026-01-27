@@ -16,7 +16,7 @@ Format-agnostic configuration loader supporting no_std, alloc, and std.
 - **Advanced Lifecycle**:
   - `PreProcess`: Hooks for data normalization or context injection before validation.
   - `ValidateConfig`: Optional integration with the `validator` crate for struct validation.
-- **Environment Support**: designed for `no_std`, `alloc`, and `std` environments seamlessly.
+- **Environment Support**: designed for `no_std` (requires `alloc`), `alloc`, and `std` environments seamlessly.
 
 ## Usage Examples
 
