@@ -137,7 +137,7 @@ impl DynLoader {
 		T: DeserializeOwned + PreProcess + validator::Validate,
 	{
 		match self.load::<T>(base_name).await {
-			LoadResult::Ok(_) => Ok(()),
+			LoadResult::Ok { .. } => Ok(()),
 			LoadResult::Invalid(e) => Err(e),
 			LoadResult::NotFound => Err(FmtError::NotFound),
 		}
@@ -163,7 +163,16 @@ impl DynLoader {
 					return LoadResult::Invalid(e);
 				}
 
-				LoadResult::Ok(obj)
+				LoadResult::Ok {
+					value: obj,
+					info: crate::LoadInfo {
+						#[cfg(feature = "std")]
+						path: std::path::PathBuf::from(key),
+						#[cfg(not(feature = "std"))]
+						key: alloc::string::String::from(key),
+						format: format.extensions().first().copied().unwrap_or("unknown"),
+					},
+				}
 			}
 			Err(e) => LoadResult::Invalid(e),
 		}
