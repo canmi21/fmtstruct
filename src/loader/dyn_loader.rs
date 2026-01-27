@@ -16,6 +16,16 @@ pub struct DynLoader {
 }
 
 #[cfg(feature = "alloc")]
+impl core::fmt::Debug for DynLoader {
+	fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+		f.debug_struct("DynLoader")
+			.field("source", &"<dyn Source>")
+			.field("formats", &self.formats)
+			.finish()
+	}
+}
+
+#[cfg(feature = "alloc")]
 pub struct DynLoaderBuilder {
 	source: Option<Box<dyn Source>>,
 	formats: Vec<AnyFormat>,
@@ -67,40 +77,24 @@ impl DynLoader {
 	where
 		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
-		let mut found = None;
+		let mut found: Option<(alloc::string::String, &AnyFormat)> = None;
+		let mut conflicts = Vec::new();
 
 		for format in &self.formats {
 			for ext in format.extensions() {
 				let key = alloc::format!("{}.{}", base_name, ext);
 				if self.source.exists(&key).await {
-					#[cfg(feature = "logging")]
-					{
-						if let Some((ref first_key, _)) = found {
-							log::warn!(
-								"Conflict detected: multiple configuration files found for '{}'. Using '{}', ignoring '{}'.",
-								base_name,
-								first_key,
-								key
-							);
-							continue;
-						}
-					}
-
-					if found.is_none() {
+					if found.is_some() {
+						conflicts.push(key);
+					} else {
 						found = Some((key, format));
-						#[cfg(not(feature = "logging"))]
-						break;
 					}
 				}
-			}
-			#[cfg(not(feature = "logging"))]
-			if found.is_some() {
-				break;
 			}
 		}
 
 		if let Some((key, format)) = found {
-			self.load_explicit(&key, format).await
+			self.load_explicit(&key, format, conflicts).await
 		} else {
 			LoadResult::NotFound
 		}
@@ -124,7 +118,7 @@ impl DynLoader {
 
 		for format in &self.formats {
 			if format.extensions().contains(&ext) {
-				return self.load_explicit(path, format).await;
+				return self.load_explicit(path, format, Vec::new()).await;
 			}
 		}
 		LoadResult::NotFound
@@ -144,7 +138,12 @@ impl DynLoader {
 	}
 
 	/// Loads the configuration using a specific key and format.
-	async fn load_explicit<T>(&self, key: &str, format: &AnyFormat) -> LoadResult<T>
+	async fn load_explicit<T>(
+		&self,
+		key: &str,
+		format: &AnyFormat,
+		conflicts: Vec<alloc::string::String>,
+	) -> LoadResult<T>
 	where
 		T: DeserializeOwned + PreProcess + ValidateConfig,
 	{
@@ -171,6 +170,13 @@ impl DynLoader {
 						#[cfg(not(feature = "std"))]
 						key: alloc::string::String::from(key),
 						format: format.extensions().first().copied().unwrap_or("unknown"),
+						#[cfg(feature = "std")]
+						conflicts: conflicts
+							.into_iter()
+							.map(std::path::PathBuf::from)
+							.collect(),
+						#[cfg(not(feature = "std"))]
+						conflicts,
 					},
 				}
 			}

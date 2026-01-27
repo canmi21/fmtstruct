@@ -9,6 +9,8 @@ extern crate alloc;
 use alloc::boxed::Box;
 #[cfg(all(feature = "alloc", not(feature = "std")))]
 use alloc::string::String;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::path::PathBuf;
 
@@ -30,6 +32,7 @@ pub use loader::DynLoader;
 pub struct LoadInfo {
 	pub path: PathBuf,
 	pub format: &'static str,
+	pub conflicts: Vec<PathBuf>,
 }
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]
@@ -37,6 +40,7 @@ pub struct LoadInfo {
 pub struct LoadInfo {
 	pub key: String,
 	pub format: &'static str,
+	pub conflicts: Vec<String>,
 }
 
 #[cfg(feature = "alloc")]

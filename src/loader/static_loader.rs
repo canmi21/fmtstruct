@@ -59,6 +59,7 @@ where
 							.first()
 							.copied()
 							.unwrap_or("unknown"),
+						conflicts: Vec::new(),
 					},
 				}
 			}
