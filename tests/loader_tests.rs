@@ -78,7 +78,8 @@ async fn test_dyn_loader_auto_detect() {
 		LoadResult::Ok { value: cfg, .. } => {
 			assert_eq!(cfg.name, "test");
 			assert_eq!(cfg.value, 42);
-			assert_eq!(cfg.context, "config.json");
+			// Context is no longer set automatically by load()
+			assert_eq!(cfg.context, "");
 		}
 		_ => panic!("Expected Ok result, got {:?}", result),
 	}
@@ -97,7 +98,8 @@ async fn test_dyn_loader_load_file() {
 		LoadResult::Ok { value: cfg, .. } => {
 			assert_eq!(cfg.name, "file");
 			assert_eq!(cfg.value, 10);
-			assert_eq!(cfg.context, "specific.json");
+			// Context is no longer set automatically by load_file()
+			assert_eq!(cfg.context, "");
 		}
 		_ => panic!("Expected Ok result, got {:?}", result),
 	}
