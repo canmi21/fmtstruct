@@ -97,7 +97,7 @@ fn test_postcard_format() {
 		name: "postcard".to_string(),
 		value: 4,
 	};
-	let data = postcard::to_stdvec(&original).unwrap();
+	let data = postcard::to_allocvec(&original).unwrap();
 
 	let pc = Postcard;
 	let cfg: PostcardTest = pc.parse(&data).unwrap();
