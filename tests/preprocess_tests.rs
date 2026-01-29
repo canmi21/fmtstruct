@@ -51,9 +51,13 @@ async fn test_preprocess_hooks() {
 	let loader = DynLoader::new(Box::new(source), vec![AnyFormat::Json]);
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
-		LoadResult::Ok { value: cfg, .. } => {
-			assert!(cfg.processed);
-			assert_eq!(cfg.ctx, "config.json");
+		LoadResult::Ok { mut value, .. } => {
+			assert!(value.processed);
+			// set_context is no longer called automatically
+			assert_eq!(value.ctx, "");
+			// Verify we can call it manually
+			value.set_context("config.json");
+			assert_eq!(value.ctx, "config.json");
 		}
 		_ => panic!("Expected Ok, got {:?}", result),
 	}
