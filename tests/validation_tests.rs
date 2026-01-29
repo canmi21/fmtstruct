@@ -4,7 +4,7 @@
 
 use async_trait::async_trait;
 use fmtstruct::format::AnyFormat;
-use fmtstruct::{DynLoader, FmtError, LoadResult, PreProcess, Source};
+use fmtstruct::{DynLoader, FmtError, LoadResult, PreProcess, Source, ValidateConfig};
 use serde::Deserialize;
 use std::collections::HashMap;
 use validator::Validate;
@@ -73,8 +73,14 @@ async fn test_validation_failure() {
 
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
-		LoadResult::Invalid(FmtError::Validation(_)) => {}
-		_ => panic!("Expected Validation error, got {:?}", result),
+		LoadResult::Ok { value, .. } => {
+			if let Err(FmtError::Validation(_)) = value.validate_config() {
+				// success
+			} else {
+				panic!("Expected Validation error, got Ok");
+			}
+		}
+		_ => panic!("Expected Ok (with invalid data), got {:?}", result),
 	}
 }
 
@@ -92,7 +98,13 @@ async fn test_regex_validation_failure() {
 
 	let result: LoadResult<TestConfig> = loader.load("config").await;
 	match result {
-		LoadResult::Invalid(FmtError::Validation(_)) => {}
-		_ => panic!("Expected Validation error for regex, got {:?}", result),
+		LoadResult::Ok { value, .. } => {
+			if let Err(FmtError::Validation(_)) = value.validate_config() {
+				// success
+			} else {
+				panic!("Expected Validation error for regex, got Ok");
+			}
+		}
+		_ => panic!("Expected Ok (with invalid data), got {:?}", result),
 	}
 }
