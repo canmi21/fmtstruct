@@ -131,7 +131,10 @@ impl DynLoader {
 		T: DeserializeOwned + PreProcess + validator::Validate,
 	{
 		match self.load::<T>(base_name).await {
-			LoadResult::Ok { .. } => Ok(()),
+			LoadResult::Ok { mut value, .. } => {
+				value.set_context(base_name);
+				value.validate_config()
+			}
 			LoadResult::Invalid(e) => Err(e),
 			LoadResult::NotFound => Err(FmtError::NotFound),
 		}
@@ -156,11 +159,6 @@ impl DynLoader {
 		match format.parse::<T>(&bytes) {
 			Ok(mut obj) => {
 				obj.pre_process();
-				obj.set_context(key);
-
-				if let Err(e) = obj.validate_config() {
-					return LoadResult::Invalid(e);
-				}
 
 				LoadResult::Ok {
 					value: obj,
