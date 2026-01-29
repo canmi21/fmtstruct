@@ -40,11 +40,6 @@ where
 		match self.format.parse::<T>(&bytes) {
 			Ok(mut obj) => {
 				obj.pre_process();
-				obj.set_context(key);
-
-				if let Err(e) = obj.validate_config() {
-					return LoadResult::Invalid(e);
-				}
 
 				LoadResult::Ok {
 					value: obj,
